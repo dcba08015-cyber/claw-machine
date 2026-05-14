@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<!-- saved from url=(0061)file:///C:/Users/cheng.lin_smartdaily/Downloads/index_23.html -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>娃娃機費用分攤</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+:root{
+  --bg:#f5f4f0;--card:#fff;--border:#e2e0d8;--text:#1a1a18;--muted:#6b6a65;
+  --accent:#2563eb;--accent-light:#eff6ff;
+  --danger:#dc2626;--danger-light:#fef2f2;
+  --success:#16a34a;--success-light:#f0fdf4;
+  --warning:#d97706;--warning-light:#fffbeb;
+  --yellow:#fef08a;--yellow-dark:#ca8a04;
+}
+html,body{width:100%;height:100%;margin:0;padding:0;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+body{font-family:'Noto Sans TC','PingFang TC',sans-serif;background:var(--bg);color:var(--text);font-size:16px;}
+
+/* ── PASSWORD SCREEN ── */
+#pwd-screen{
+  position:fixed;inset:0;
+  background:linear-gradient(135deg,#1e3a5f 0%,#2563eb 100%);
+  display:flex;align-items:center;justify-content:center;
+  padding:1.5rem;z-index:999;
+}
+.pwd-box{
+  background:#fff;border-radius:20px;
+  padding:2.5rem 2rem;width:100%;max-width:360px;
+  text-align:center;
+}
+.pwd-icon{font-size:3rem;margin-bottom:0.75rem;display:block;}
+.pwd-title{font-size:1.4rem;font-weight:700;margin-bottom:0.3rem;}
+.pwd-sub{color:var(--muted);font-size:0.88rem;margin-bottom:1.75rem;}
+.pwd-input{
+  width:100%;padding:0.9rem 1rem;
+  border:2px solid var(--border);border-radius:12px;
+  font-size:1.1rem;text-align:center;letter-spacing:0.15em;
+  margin-bottom:1rem;background:var(--bg);
+}
+.pwd-input:focus{outline:none;border-color:var(--accent);}
+.pwd-btn{
+  width:100%;padding:1rem;border:none;border-radius:12px;
+  background:var(--accent);color:#fff;
+  font-size:1rem;font-weight:700;cursor:pointer;
+}
+.pwd-btn:active{opacity:0.85;}
+.pwd-error{color:var(--danger);font-size:0.85rem;margin-top:0.75rem;display:none;}
+
+/* ── LOGIN SCREEN ── */
+#login-screen{
+  display:none;
+  position:fixed;inset:0;
+  background:var(--card);
+  flex-direction:column;align-items:stretch;justify-content:center;
+  padding:2.5rem 1.5rem;
+}
+#login-screen.active{display:flex;}
+.login-icon{font-size:4rem;text-align:center;margin-bottom:1rem;}
+.login-title{font-size:1.75rem;font-weight:700;text-align:center;margin-bottom:0.3rem;}
+.login-sub{color:var(--muted);font-size:0.92rem;text-align:center;margin-bottom:2.5rem;}
+.person-btn{
+  display:block;width:100%;padding:1.25rem;margin-bottom:1rem;
+  border-radius:16px;border:2px solid var(--border);
+  background:var(--card);font-size:1.15rem;font-weight:600;
+  cursor:pointer;color:var(--text);
+}
+.person-btn:last-of-type{margin-bottom:0;}
+.person-btn:active{transform:scale(0.97);}
+.person-btn.owner{background:var(--yellow);border-color:var(--yellow-dark);color:#713f12;}
+
+/* ── APP SCREEN ── */
+#app-screen{display:none;}
+#app-screen.active{display:block;}
+
+/* ── TOPBAR ── */
+.topbar{
+  background:var(--card);border-bottom:1px solid var(--border);
+  padding:0.85rem 1.25rem;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:20;
+}
+.topbar-left{display:flex;align-items:center;gap:0.6rem;}
+.topbar-title{font-size:1rem;font-weight:700;}
+.avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-size:0.82rem;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.avatar.owner-av{background:var(--yellow-dark);}
+.user-name{font-size:0.88rem;font-weight:600;}
+.logout-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:0.35rem 0.75rem;font-size:0.8rem;cursor:pointer;color:var(--muted);}
+.logout-btn:active{background:var(--danger-light);color:var(--danger);}
+
+.content{padding:1rem 1rem 3rem;width:100%;}
+
+/* ── TABS ── */
+.tabs{display:flex;gap:0.35rem;margin-bottom:1rem;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:0.3rem;}
+.tab-btn{flex:1;padding:0.7rem 0.25rem;border:none;border-radius:10px;background:none;font-size:0.85rem;font-weight:600;cursor:pointer;color:var(--muted);min-height:44px;white-space:nowrap;}
+.tab-btn.active{background:var(--accent);color:#fff;}
+.tab-btn:active{opacity:0.75;}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:0.85rem;}
+.card.me{border:2.5px solid var(--accent);}
+.card-title{font-size:1rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;}
+.badge{font-size:0.72rem;font-weight:600;padding:0.15rem 0.55rem;border-radius:20px;display:inline-block;}
+.badge-pending{background:var(--warning-light);color:var(--warning);}
+.badge-confirmed{background:var(--success-light);color:var(--success);}
+
+/* ── BANNER ── */
+.new-banner{background:var(--accent);color:#fff;border-radius:16px;padding:1.1rem 1.2rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;cursor:pointer;min-height:64px;}
+.new-banner:active{opacity:0.85;}
+.nb-title{font-size:1rem;font-weight:700;margin-bottom:0.2rem;}
+.nb-sub{font-size:0.82rem;opacity:0.85;}
+
+/* ── RECORD LIST ── */
+.record-item{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem 1.1rem;margin-bottom:0.75rem;cursor:pointer;}
+.record-item:active{border-color:var(--accent);background:var(--accent-light);}
+.record-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.55rem;}
+.record-month{font-weight:700;font-size:1rem;}
+.record-total{font-size:0.85rem;color:var(--muted);}
+.record-pills{display:flex;gap:0.4rem;flex-wrap:wrap;margin-bottom:0.4rem;}
+.pill{font-size:0.75rem;padding:0.22rem 0.65rem;border-radius:20px;border:1px solid var(--border);color:var(--muted);}
+.pill.ok{background:var(--success-light);color:var(--success);border-color:var(--success);}
+.pill.wait{background:var(--warning-light);color:var(--warning);border-color:var(--warning);}
+.collect-row{font-size:0.78rem;color:var(--muted);}
+.collect-row strong{color:var(--success);}
+
+/* ── SUMMARY ── */
+.sbox-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1rem;}
+.sbox{background:var(--bg);border-radius:12px;padding:0.75rem 0.4rem;text-align:center;}
+.sbox-label{font-size:0.68rem;color:var(--muted);margin-bottom:0.2rem;}
+.sbox-value{font-size:0.95rem;font-weight:700;white-space:nowrap;}
+
+/* ── FORM ── */
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:0.65rem;}
+.row1{margin-bottom:0.65rem;}
+label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:0.3rem;}
+input[type=text],input[type=number],select{
+  width:100%;padding:0.8rem 0.9rem;border:1.5px solid var(--border);border-radius:10px;
+  font-size:1rem;color:var(--text);background:var(--bg);
+  -webkit-appearance:none;appearance:none;min-height:48px;
+}
+input:focus,select:focus{outline:none;border-color:var(--accent);background:#fff;}
+.btn{width:100%;padding:1rem;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:0.5rem;min-height:52px;}
+.btn:active{opacity:0.8;transform:scale(0.98);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-warning{background:var(--warning);color:#fff;}
+
+/* ── DEDUCTIONS ── */
+.deduct-del{background:var(--danger-light);border:none;color:var(--danger);cursor:pointer;font-size:0.82rem;padding:0.4rem 0.7rem;border-radius:8px;min-width:52px;min-height:40px;flex-shrink:0;}
+.deduct-form{background:var(--bg);border-radius:12px;padding:1rem;margin-top:0.75rem;}
+
+/* ── AMOUNT ── */
+.amt-big{text-align:center;padding:1.1rem;background:var(--accent-light);border-radius:12px;margin-bottom:0.75rem;}
+.amt-big-label{font-size:0.82rem;color:var(--muted);margin-bottom:0.2rem;}
+.amt-big-value{font-size:2.2rem;font-weight:700;color:var(--accent);}
+.amt-breakdown{background:var(--bg);border-radius:12px;padding:0.85rem 1rem;margin-bottom:0.75rem;}
+.abrow{display:flex;justify-content:space-between;align-items:center;font-size:0.88rem;padding:0.3rem 0;gap:0.5rem;}
+.abrow.total{font-weight:700;border-top:1px solid var(--border);margin-top:0.35rem;padding-top:0.5rem;font-size:0.95rem;}
+
+/* ── LEDGER ── */
+.ledger-wrap{border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-top:0.5rem;}
+.ledger-hd{padding:0.4rem 1rem;font-size:0.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;background:var(--bg);border-bottom:1px solid var(--border);}
+.lrow{display:flex;justify-content:space-between;align-items:center;padding:0.65rem 1rem;border-bottom:1px solid var(--border);font-size:0.88rem;gap:0.5rem;}
+.lrow:last-child{border-bottom:none;}
+.lrow.bold{font-weight:700;font-size:0.95rem;}
+.lrow.total{background:var(--yellow);font-weight:700;font-size:0.95rem;}
+.lrow.sub{padding-left:1.75rem;}
+.lk{color:var(--muted);flex:1;}
+
+/* ── MISC ── */
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0;}
+.back-btn{background:none;border:none;color:var(--accent);cursor:pointer;font-size:0.95rem;margin-bottom:1rem;padding:0.5rem 0;display:flex;align-items:center;gap:0.35rem;min-height:44px;}
+.back-btn:active{opacity:0.7;}
+.empty{text-align:center;padding:3rem 1.5rem;color:var(--muted);font-size:0.95rem;line-height:1.8;}
+.total-preview{background:var(--accent-light);border-radius:10px;padding:0.75rem 1rem;margin:0.4rem 0;font-size:0.88rem;color:var(--accent);}
+.info-note{background:var(--accent-light);border-radius:10px;padding:0.7rem 0.9rem;font-size:0.82rem;color:var(--accent);margin-bottom:0.75rem;line-height:1.5;}
+.section-label{font-size:0.82rem;font-weight:700;color:var(--muted);margin-bottom:0.5rem;margin-top:0.25rem;}
+.error-banner{background:var(--danger-light);border:1.5px solid var(--danger);border-radius:10px;padding:0.75rem 1rem;font-size:0.88rem;color:var(--danger);margin-bottom:0.75rem;display:none;}
+.retry-btn{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:0.6rem 1.2rem;font-size:0.88rem;font-weight:600;cursor:pointer;margin-top:0.5rem;min-height:40px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(100px);background:#1a1a18;color:#fff;padding:0.8rem 1.5rem;border-radius:40px;font-size:0.9rem;font-weight:500;transition:transform 0.3s;z-index:100;white-space:nowrap;max-width:85vw;text-align:center;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.err{background:var(--danger);}
+#toast.ok{background:var(--success);}
+
+/* ── LOADING ── */
+.load-ov{position:fixed;inset:0;background:rgba(255,255,255,0.7);display:none;align-items:center;justify-content:center;z-index:50;}
+.load-ov.show{display:flex;}
+.spinner{width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── DESKTOP RWD ── */
+@media(min-width:600px){
+  #login-screen{
+    background:linear-gradient(135deg,#eff6ff 0%,#f5f4f0 100%);
+    align-items:center;justify-content:center;
+    padding:2rem;
+  }
+  .login-icon,.login-title,.login-sub{text-align:center;}
+  #login-screen .login-inner{
+    background:#fff;border-radius:20px;padding:3rem 2.5rem;
+    width:100%;max-width:420px;
+    box-shadow:0 8px 40px rgba(0,0,0,0.12);
+  }
+  .person-btn{padding:0.9rem;font-size:1rem;margin-bottom:0.75rem;border-radius:12px;}
+  .login-icon{font-size:3rem;}
+  .login-title{font-size:1.5rem;}
+  .login-sub{margin-bottom:1.75rem;}
+  .content{padding:1.25rem 2rem 2rem;max-width:720px;margin:0 auto;}
+  .tab-btn{min-height:40px;font-size:0.88rem;}
+  .card{padding:1.25rem 1.5rem;}
+  .btn{min-height:44px;padding:0.8rem;}
+  .amt-big-value{font-size:2.5rem;}
+  .topbar{padding:0.85rem 2rem;}
+}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+<div class="load-ov" id="loading"><div class="spinner"></div></div>
+
+<!-- ══ 密碼畫面 ══ -->
+<div id="pwd-screen">
+  <div class="pwd-box">
+    <span class="pwd-icon">🔐</span>
+    <div class="pwd-title">娃娃機費用分攤</div>
+    <div class="pwd-sub">請輸入存取密碼</div>
+    <input type="password" class="pwd-input" id="pwd-input" placeholder="密碼" maxlength="20">
+    <button class="pwd-btn" onclick="checkPwd()">進入</button>
+    <div class="pwd-error" id="pwd-error">密碼錯誤，請重試</div>
+  </div>
+</div>
+
+<!-- ══ 登入畫面 ══ -->
+<div id="login-screen">
+  <div class="login-inner">
+    <div class="login-icon">🎮</div>
+    <div class="login-title">娃娃機費用分攤</div>
+    <div class="login-sub">請選擇身分登入</div>
+    <button class="person-btn owner" onclick="login(&#39;良偉&#39;)">👑 良偉（場主）</button>
+    <button class="person-btn" onclick="login(&#39;伯父&#39;)">伯父</button>
+    <button class="person-btn" onclick="login(&#39;聖承&#39;)">聖承</button>
+  </div>
+</div>
+
+<!-- ══ APP 主畫面 ══ -->
+<div id="app-screen">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="avatar" id="av">良</div>
+      <div class="topbar-title">娃娃機費用</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <span class="user-name" id="un"></span>
+      <button class="logout-btn" onclick="logout()">登出</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(&#39;list&#39;)">📋 紀錄</button>
+      <button class="tab-btn" onclick="switchTab(&#39;new&#39;)" id="new-tab" style="display:none">＋ 新增</button>
+    </div>
+    <div id="tab-list">
+      <div id="new-banner" style="display:none" onclick="switchTab(&#39;new&#39;)">
+        <div class="new-banner">
+          <div><div class="nb-title">＋ 記錄新月份費用</div><div class="nb-sub" id="banner-period">計算中...</div></div>
+          <div style="font-size:2rem;margin-left:0.75rem;">📅</div>
+        </div>
+      </div>
+      <div id="load-error" class="error-banner">載入失敗<br><button class="retry-btn" onclick="loadAll()">重新載入</button></div>
+      <div id="records-list"></div>
+      <div id="record-detail" style="display:none"></div>
+    </div>
+    <div id="tab-new" style="display:none">
+      <div class="card">
+        <div class="card-title">📅 新增月份費用</div>
+        <div class="row1"><label>月份期間</label><input type="text" id="n-month" placeholder="例：2026年 4/22-5/21" style="font-weight:600;"></div>
+        <div class="divider"></div>
+        <div class="section-label">中清費用</div>
+        <div class="row2">
+          <div><label>店租</label><input type="number" id="n-rent" value="0" min="0" inputmode="numeric" oninput="updateTotal()"></div>
+          <div><label>娛樂稅</label><input type="number" id="n-ent" value="0" min="0" inputmode="numeric" oninput="updateTotal()"></div>
+        </div>
+        <div class="row2">
+          <div><label>營業稅</label><input type="number" id="n-biz" value="0" min="0" inputmode="numeric" oninput="updateTotal()"></div>
+          <div><label>電費</label><input type="number" id="n-elec" value="0" min="0" inputmode="numeric" oninput="updateTotal()"></div>
+        </div>
+        <div class="row1"><label>其他(水費)</label><input type="number" id="n-other" value="0" min="0" inputmode="numeric" oninput="updateTotal()"></div>
+        <div class="total-preview" id="total-preview">中清總計：<strong>$0</strong>｜各人分攤：<strong>$0</strong></div>
+        <div class="divider"></div>
+        <div class="section-label">益民租金（可調整）</div>
+        <div class="row2">
+          <div><label>伯父益民租金</label><input type="number" id="n-uncle" value="6500" min="0" inputmode="numeric"></div>
+          <div><label>聖承益民租金</label><input type="number" id="n-sc" value="3500" min="0" inputmode="numeric"></div>
+        </div>
+        <div class="info-note">💡 良偉負擔 50%，伯父與聖承各負擔 25%，再加各自益民租金。</div>
+        <button class="btn btn-primary" onclick="saveNewMonth()">💾 儲存並公開帳目</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// ★ 設定區 — 只需修改這裡 ★
+// ═══════════════════════════════════════
+const PASSWORD = '9157';  // ← 在這裡設定密碼
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbx6R5S4ay2LmpKoNNjwq8J8CB6_qeI5HT4C8v-xz9XT1DmJP1vxAND5rNlKxvFcLLGzAA/exec'; // ← Apps Script 部署網址
+// ═══════════════════════════════════════
+
+const YIMIN_DEFAULT = {伯父:6500, 聖承:3500};
+let ME=null, RECORDS=[], SEL=null, NEXT=null;
+const PRESETS=['野獸國','史迪奇','迪士尼','皮克斯','其他'];
+
+// ── 密碼驗證 ──
+function checkPwd(){
+  const val = document.getElementById('pwd-input').value;
+  const err = document.getElementById('pwd-error');
+  if(val === PASSWORD){
+    document.getElementById('pwd-screen').style.display='none';
+    try{ localStorage.setItem('claw_auth','1'); }catch(e){}
+    // 檢查是否有記憶登入
+    try{
+      const saved=localStorage.getItem('claw_user');
+      if(saved&&['良偉','伯父','聖承'].includes(saved)){ ME=saved; applyLogin(saved); return; }
+    }catch(e){}
+    document.getElementById('login-screen').classList.add('active');
+  } else {
+    err.style.display='block';
+    document.getElementById('pwd-input').value='';
+    document.getElementById('pwd-input').focus();
+  }
+}
+document.getElementById('pwd-input').addEventListener('keydown',e=>{ if(e.key==='Enter') checkPwd(); });
+
+// ── 自動登入 ──
+window.addEventListener('DOMContentLoaded',()=>{
+  try{
+    if(localStorage.getItem('claw_auth')==='1'){
+      document.getElementById('pwd-screen').style.display='none';
+      const saved=localStorage.getItem('claw_user');
+      if(saved&&['良偉','伯父','聖承'].includes(saved)){ ME=saved; applyLogin(saved); return; }
+      document.getElementById('login-screen').classList.add('active');
+    }
+  }catch(e){}
+});
+
+// ── 登入 ──
+function login(p){
+  ME=p;
+  try{ localStorage.setItem('claw_user',p); }catch(e){}
+  applyLogin(p);
+}
+function applyLogin(p){
+  ME=p;
+  document.getElementById('un').textContent=p;
+  const av=document.getElementById('av');
+  av.textContent=p[0];
+  av.className='avatar'+(p==='良偉'?' owner-av':'');
+  const isOwner=p==='良偉';
+  document.getElementById('new-tab').style.display=isOwner?'':'none';
+  document.getElementById('new-banner').style.display=isOwner?'':'none';
+  document.getElementById('login-screen').classList.remove('active');
+  document.getElementById('app-screen').classList.add('active');
+  loadAll();
+}
+function logout(){
+  ME=null; SEL=null;
+  try{ localStorage.removeItem('claw_user'); }catch(e){}
+  document.getElementById('app-screen').classList.remove('active');
+  document.getElementById('login-screen').classList.add('active');
+}
+
+// ── API 呼叫（改用 fetch）──
+async function callGAS(action, params={}){
+  const url = new URL(GAS_URL);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k,v])=> url.searchParams.set(k, typeof v==='object'?JSON.stringify(v):v));
+  const res = await fetch(url.toString(), {redirect:'follow'});
+  return await res.json();
+}
+
+// ── TABS ──
+function switchTab(t){
+  ['list','new'].forEach((id,i)=>{
+    document.getElementById('tab-'+id).style.display=id===t?'':'none';
+    document.querySelectorAll('.tabs .tab-btn')[i].classList.toggle('active',id===t);
+  });
+  if(t==='list'){ document.getElementById('record-detail').style.display='none'; renderList(); }
+  if(t==='new'){
+    const el=document.getElementById('n-month');
+    if(!el.value){
+      if(NEXT&&NEXT.suggestion) el.value=NEXT.suggestion;
+      else callGAS('getNextPeriod').then(p=>{ NEXT=p; if(p&&p.success) el.value=p.suggestion||''; });
+    }
+  }
+}
+
+// ── LOAD ──
+function loadAll(){
+  showLoad(true);
+  document.getElementById('load-error').style.display='none';
+  Promise.all([callGAS('getAllRecords'), callGAS('getNextPeriod')])
+    .then(([recs, period])=>{
+      showLoad(false);
+      if(!recs.success){ showLoadError(); return; }
+      RECORDS=recs.data||[];
+      NEXT=period;
+      if(period&&period.success) document.getElementById('banner-period').textContent=period.suggestion;
+      renderList();
+    })
+    .catch(()=>{ showLoad(false); showLoadError(); });
+}
+function showLoadError(){ document.getElementById('load-error').style.display='block'; document.getElementById('records-list').innerHTML=''; }
+
+// ── CALC ──
+function calcPay(r,person){
+  const share=Math.round(r.租金總計/4);
+  const yimin=person==='伯父'?r.伯父租金:r.聖承租金;
+  const deducts=toArr(person==='伯父'?r.伯父扣抵:r.聖承扣抵);
+  const extras=toArr(person==='伯父'?r.伯父額外:r.聖承額外);
+  return share+yimin+deducts.reduce((s,d)=>s+Number(d.amount),0)+extras.reduce((s,d)=>s+Number(d.amount),0);
+}
+function toArr(v){ if(Array.isArray(v)) return v; if(typeof v==='string'){ try{ const p=JSON.parse(v); return Array.isArray(p)?p:[]; }catch(e){} } return []; }
+
+// ── LIST ──
+function renderList(){
+  const el=document.getElementById('records-list');
+  document.getElementById('record-detail').style.display='none';
+  el.style.display='';
+  if(!RECORDS.length){ el.innerHTML='<div class="empty">📭 尚無紀錄<br>請良偉先新增月份費用</div>'; return; }
+  el.innerHTML=RECORDS.map(r=>{
+    const uc=(r.伯父確認||'').includes('已確認'), sc=(r.聖承確認||'').includes('已確認');
+    const upay=calcPay(r,'伯父'), spay=calcPay(r,'聖承');
+    return `<div class="record-item" onclick="selectRecord('${r.月份}')">
+      <div class="record-meta"><span class="record-month">${r.月份}</span><span class="record-total">中清 $${fmt(r.租金總計)}</span></div>
+      <div class="record-pills">
+        <span class="pill">良偉 $${fmt(Math.round(r.租金總計/2))}</span>
+        <span class="pill ${uc?'ok':'wait'}">伯父 $${fmt(upay)}${uc?' ✓':''}</span>
+        <span class="pill ${sc?'ok':'wait'}">聖承 $${fmt(spay)}${sc?' ✓':''}</span>
+      </div>
+      <div class="collect-row">應收合計（伯父＋聖承）：<strong>$${fmt(upay+spay)}</strong></div>
+    </div>`;
+  }).join('');
+}
+
+// ── DETAIL ──
+function selectRecord(month){
+  SEL=month;
+  const r=RECORDS.find(x=>x.月份===month);
+  if(!r) return;
+  document.getElementById('records-list').style.display='none';
+  const el=document.getElementById('record-detail');
+  el.style.display='';
+  const uc=(r.伯父確認||'').includes('已確認'), sc=(r.聖承確認||'').includes('已確認');
+  const share=Math.round(r.租金總計/4);
+  let dtabs=ME==='良偉'?[{id:'lw',label:'良偉'},{id:'uncle',label:'伯父'},{id:'sc',label:'聖承'},{id:'ledger',label:'📊'}]
+    :ME==='伯父'?[{id:'uncle',label:'我的帳'},{id:'ledger',label:'📊 帳目'}]
+    :[{id:'sc',label:'我的帳'},{id:'ledger',label:'📊 帳目'}];
+  let html=`<button class="back-btn" onclick="backToList()">← 返回列表</button>
+  <div class="card">
+    <div class="card-title">${r.月份}</div>
+    <div class="sbox-grid">
+      <div class="sbox"><div class="sbox-label">中清總計</div><div class="sbox-value">$${fmt(r.租金總計)}</div></div>
+      <div class="sbox"><div class="sbox-label">良偉負擔</div><div class="sbox-value">$${fmt(Math.round(r.租金總計/2))}</div></div>
+      <div class="sbox"><div class="sbox-label">各人分攤</div><div class="sbox-value">$${fmt(share)}</div></div>
+    </div>
+    <table style="width:100%;font-size:0.85rem;border-collapse:collapse;">
+      ${[['店租',r.店租,'娛樂稅',r.娛樂稅],['營業稅',r.營業稅,'電費',r.電費],['其他(水費)',r.其他,'','']]
+        .map(c=>`<tr style="background:var(--bg);border-bottom:1px solid var(--border);">
+          <td style="padding:0.35rem 0.6rem;color:var(--muted);">${c[0]}</td>
+          <td style="padding:0.35rem 0.6rem;text-align:right;font-weight:600;">$${fmt(c[1])}</td>
+          <td style="padding:0.35rem 0.6rem;color:var(--muted);">${c[2]}</td>
+          <td style="padding:0.35rem 0.6rem;text-align:right;font-weight:600;">${c[3]!==''?'$'+fmt(c[3]):''}</td>
+        </tr>`).join('')}
+    </table>
+  </div>
+  <div class="tabs" id="dtabs">${dtabs.map((t,i)=>`<button class="tab-btn${i===0?' active':''}" data-dtab="${t.id}" onclick="switchDTab('${t.id}')">${t.label}</button>`).join('')}</div>`;
+  if(dtabs.some(t=>t.id==='lw')) html+=lwSec(r,share);
+  if(dtabs.some(t=>t.id==='uncle')) html+=personSec(r,'伯父',uc,share);
+  if(dtabs.some(t=>t.id==='sc')) html+=personSec(r,'聖承',sc,share);
+  html+=ledgerSec(r,share);
+  el.innerHTML=html;
+  switchDTab(dtabs[0].id);
+}
+
+function switchDTab(id){
+  ['lw','uncle','sc','ledger'].forEach(tid=>{ const s=document.getElementById('sec-'+tid); if(s) s.style.display=tid===id?'':'none'; });
+  document.querySelectorAll('#dtabs .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.dtab===id));
+}
+
+function lwSec(r,share){
+  return `<div id="sec-lw" style="display:none;">
+    <div class="card"><div class="card-title">良偉</div>
+      <div class="amt-big"><div class="amt-big-label">應付金額（中清 50%）</div><div class="amt-big-value">$${fmt(Math.round(r.租金總計/2))}</div></div>
+    </div>
+    <div class="card"><div class="card-title">✏️ 編輯費用</div>
+      <div class="section-label">中清費用</div>
+      <div class="row2">
+        <div><label>店租</label><input type="number" id="e-rent" value="${r.店租}" inputmode="numeric"></div>
+        <div><label>娛樂稅</label><input type="number" id="e-ent" value="${r.娛樂稅}" inputmode="numeric"></div>
+      </div>
+      <div class="row2">
+        <div><label>營業稅</label><input type="number" id="e-biz" value="${r.營業稅}" inputmode="numeric"></div>
+        <div><label>電費</label><input type="number" id="e-elec" value="${r.電費}" inputmode="numeric"></div>
+      </div>
+      <div class="row1"><label>其他(水費)</label><input type="number" id="e-other" value="${r.其他}" inputmode="numeric"></div>
+      <div class="divider"></div>
+      <div class="section-label">益民租金</div>
+      <div class="row2">
+        <div><label>伯父益民租金</label><input type="number" id="e-uncle" value="${r.伯父租金}" inputmode="numeric"></div>
+        <div><label>聖承益民租金</label><input type="number" id="e-sc" value="${r.聖承租金}" inputmode="numeric"></div>
+      </div>
+      <button class="btn btn-primary" onclick="updateMonth()">💾 更新費用</button>
+    </div>
+    <div class="card"><div class="card-title">💳 新增額外費用</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.85rem;">記錄賣給伯父或聖承的商品費用。</div>
+      <div class="row2">
+        <div><label>對象</label><select id="extra-target"><option value="伯父">伯父</option><option value="聖承">聖承</option></select></div>
+        <div><label>項目名稱</label><input type="text" id="extra-item" placeholder="例：711禮卷"></div>
+      </div>
+      <div class="row2">
+        <div><label>金額</label><input type="number" id="extra-amt" placeholder="500" min="1" inputmode="numeric"></div>
+        <div><label>備註（選填）</label><input type="text" id="extra-note" placeholder="備註說明"></div>
+      </div>
+      <button class="btn btn-warning" onclick="addExtraByOwner()">＋ 新增額外費用</button>
+    </div>
+    <div class="card"><div class="card-title">🔓 解除確認</div>
+      <div style="font-size:0.85rem;color:var(--muted);margin-bottom:0.75rem;">若金額有誤，可解除確認讓對方重新確認。</div>
+      <div class="row2">
+        <button class="btn btn-warning" onclick="doResetConfirm('伯父')">解除伯父確認</button>
+        <button class="btn btn-warning" onclick="doResetConfirm('聖承')">解除聖承確認</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function personSec(r,person,isConfirmed,share){
+  const isMe=ME===person, isOwner=ME==='良偉';
+  const yimin=person==='伯父'?r.伯父租金:r.聖承租金;
+  const deducts=toArr(person==='伯父'?r.伯父扣抵:r.聖承扣抵);
+  const extras=toArr(person==='伯父'?r.伯父額外:r.聖承額外);
+  const dedTotal=deducts.reduce((s,d)=>s+Number(d.amount),0);
+  const extTotal=extras.reduce((s,d)=>s+Number(d.amount),0);
+  const pay=share+yimin+dedTotal+extTotal;
+  const confirmStr=person==='伯父'?r.伯父確認:r.聖承確認;
+  const secId=person==='伯父'?'uncle':'sc';
+  const canEdit=(isMe||isOwner)&&!isConfirmed;
+  let h=`<div id="sec-${secId}" style="display:none;">
+    <div class="card${isMe?' me':''}">
+      <div class="card-title">${person}<span class="badge ${isConfirmed?'badge-confirmed':'badge-pending'}">${isConfirmed?'已確認':'待確認'}</span></div>
+      <div class="amt-big"><div class="amt-big-label">應付金額</div><div class="amt-big-value">$${fmt(pay)}</div></div>
+      <div class="amt-breakdown">
+        <div class="abrow"><span class="lk">中清分攤（25%）</span><span>$${fmt(share)}</span></div>
+        <div class="abrow"><span class="lk">益民租金</span><span>$${fmt(yimin)}</span></div>
+        ${deducts.map((d,i)=>`<div class="abrow">
+          <span class="lk" style="flex:1;">↳ ${d.item}${d.note?' ('+d.note+')':''}</span>
+          <span style="color:var(--danger);">−$${fmt(Math.abs(d.amount))}</span>
+          ${canEdit?'<button class="deduct-del" data-person="'+person+'" data-idx="'+i+'" onclick="delDeduct(this)">刪除</button>':''}
+        </div>`).join('')}
+        ${extras.length?`<div class="abrow" style="margin-top:0.3rem;"><span class="lk" style="font-weight:700;">額外費用</span></div>`:''}
+        ${extras.map((d,i)=>`<div class="abrow">
+          <span class="lk" style="flex:1;">↳ ${d.item}${d.note?' ('+d.note+')':''}</span>
+          <span style="color:var(--warning);">+$${fmt(Math.abs(d.amount))}</span>
+          ${isOwner?'<button class="deduct-del" style="background:var(--warning-light);color:var(--warning);" data-person="'+person+'" data-eidx="'+i+'" onclick="delExtra(this)">刪除</button>':''}
+        </div>`).join('')}
+        <div class="abrow total"><span>應付合計</span><span style="color:var(--accent);">$${fmt(pay)}</span></div>
+      </div>`;
+  if(canEdit){
+    h+=`<div class="section-label">新增扣抵項目</div>
+    <div class="deduct-form">
+      <div class="row2">
+        <div><label>項目名稱</label>
+          <select id="di-${person}" onchange="toggleCustom('${person}')">
+            ${PRESETS.map(p=>`<option>${p}</option>`).join('')}<option value="__c__">自訂...</option>
+          </select>
+        </div>
+        <div><label>扣抵金額（正數）</label><input type="number" id="da-${person}" placeholder="1000" min="1" inputmode="numeric"></div>
+      </div>
+      <div id="dc-${person}" style="display:none;margin-bottom:0.65rem;"><label>自訂名稱</label><input type="text" id="dcv-${person}" placeholder="輸入名稱"></div>
+      <div class="row1"><label>備註（選填）</label><input type="text" id="dn-${person}" placeholder="例：3/25"></div>
+      <button class="btn btn-primary" style="margin-top:0;" onclick="addDeduct('${person}')">＋ 新增扣抵</button>
+    </div>`;
+  }
+  if(isMe&&!isConfirmed) h+=`<div class="divider"></div><div style="font-size:0.82rem;color:var(--muted);margin-bottom:0.6rem;">確認後請聯絡良偉若需修改。</div><button class="btn btn-success" onclick="doConfirm('${person}')">✅ 確認此月應付金額</button>`;
+  if(isConfirmed) h+=`<div style="font-size:0.8rem;color:var(--success);margin-top:0.6rem;">${confirmStr}</div>`;
+  h+=`</div></div>`;
+  return h;
+}
+
+function ledgerSec(r,share){
+  const upay=calcPay(r,'伯父'), spay=calcPay(r,'聖承'), lwpay=Math.round(r.租金總計/2);
+  return `<div id="sec-ledger" style="display:none;"><div class="card"><div class="card-title">📊 完整帳目</div>
+    <div class="ledger-wrap">
+      <div class="ledger-hd">中清費用</div>
+      ${[['店租',r.店租],['娛樂稅',r.娛樂稅],['營業稅',r.營業稅],['電費',r.電費],['其他(水費)',r.其他]]
+        .map(([k,v])=>`<div class="lrow"><span class="lk">${k}</span><span style="font-weight:600;">$${fmt(v)}</span></div>`).join('')}
+      <div class="lrow total"><span>中清總計</span><span>$${fmt(r.租金總計)}</span></div>
+      <div class="ledger-hd">各人負擔</div>
+      <div class="lrow"><span class="lk">良偉中清（50%）</span><span>$${fmt(lwpay)}</span></div>
+      <div class="lrow bold"><span>良偉應付</span><span style="color:var(--accent);">$${fmt(lwpay)}</span></div>
+      <div class="lrow"><span class="lk">伯父中清（25%）</span><span>$${fmt(share)}</span></div>
+      <div class="lrow"><span class="lk">伯父益民租金</span><span>$${fmt(r.伯父租金)}</span></div>
+      ${toArr(r.伯父扣抵).map(d=>`<div class="lrow sub"><span class="lk">↳ ${d.item}${d.note?' ('+d.note+')':''}</span><span style="color:var(--danger);">−$${fmt(Math.abs(d.amount))}</span></div>`).join('')}
+      ${toArr(r.伯父額外).length?`<div class="lrow sub" style="font-size:0.8rem;color:var(--muted);">額外費用</div>`:''}
+      ${toArr(r.伯父額外).map(d=>`<div class="lrow sub"><span class="lk">↳ ${d.item}${d.note?' ('+d.note+')':''}</span><span style="color:var(--warning);">+$${fmt(Math.abs(d.amount))}</span></div>`).join('')}
+      <div class="lrow bold"><span>伯父應付</span><span style="color:var(--success);">$${fmt(upay)}</span></div>
+      <div class="lrow"><span class="lk">聖承中清（25%）</span><span>$${fmt(share)}</span></div>
+      <div class="lrow"><span class="lk">聖承益民租金</span><span>$${fmt(r.聖承租金)}</span></div>
+      ${toArr(r.聖承扣抵).map(d=>`<div class="lrow sub"><span class="lk">↳ ${d.item}${d.note?' ('+d.note+')':''}</span><span style="color:var(--danger);">−$${fmt(Math.abs(d.amount))}</span></div>`).join('')}
+      ${toArr(r.聖承額外).length?`<div class="lrow sub" style="font-size:0.8rem;color:var(--muted);">額外費用</div>`:''}
+      ${toArr(r.聖承額外).map(d=>`<div class="lrow sub"><span class="lk">↳ ${d.item}${d.note?' ('+d.note+')':''}</span><span style="color:var(--warning);">+$${fmt(Math.abs(d.amount))}</span></div>`).join('')}
+      <div class="lrow bold"><span>聖承應付</span><span style="color:var(--success);">$${fmt(spay)}</span></div>
+      <div class="lrow total"><span>三人合計</span><span>$${fmt(lwpay+upay+spay)}</span></div>
+      <div class="lrow" style="background:var(--success-light);font-weight:700;">
+        <span style="color:var(--success);">應收合計（伯父＋聖承）</span>
+        <span style="color:var(--success);">$${fmt(upay+spay)}</span>
+      </div>
+    </div>
+  </div></div>`;
+}
+
+function backToList(){ document.getElementById('records-list').style.display=''; document.getElementById('record-detail').style.display='none'; SEL=null; }
+
+// ── NEW MONTH ──
+function updateTotal(){
+  const v=['n-rent','n-ent','n-biz','n-elec','n-other'].map(id=>parseFloat(document.getElementById(id).value)||0);
+  const t=v.reduce((a,b)=>a+b,0);
+  document.getElementById('total-preview').innerHTML=`中清總計：<strong>$${fmt(t)}</strong>｜各人分攤：<strong>$${fmt(Math.round(t/4))}</strong>`;
+}
+function saveNewMonth(){
+  const month=document.getElementById('n-month').value.trim();
+  if(!month){ toast('請填寫月份期間',1); document.getElementById('n-month').focus(); return; }
+  const existing=RECORDS.find(r=>r.月份===month);
+  if(existing&&!confirm(`「${month}」已有紀錄，確定要覆蓋？`)) return;
+  const data={月份:month,年份:NEXT?NEXT.year:'',
+    店租:parseFloat(document.getElementById('n-rent').value)||0,
+    娛樂稅:parseFloat(document.getElementById('n-ent').value)||0,
+    營業稅:parseFloat(document.getElementById('n-biz').value)||0,
+    電費:parseFloat(document.getElementById('n-elec').value)||0,
+    其他:parseFloat(document.getElementById('n-other').value)||0,
+    伯父租金:parseFloat(document.getElementById('n-uncle').value)||0,
+    聖承租金:parseFloat(document.getElementById('n-sc').value)||0,
+  };
+  showLoad(true);
+  callGAS('saveRentData',{data:JSON.stringify(data)})
+    .then(res=>{ showLoad(false); if(res.success){ toast(res.message,'ok'); ['n-rent','n-ent','n-biz','n-elec','n-other'].forEach(id=>document.getElementById(id).value=0); document.getElementById('n-uncle').value=6500; document.getElementById('n-sc').value=3500; document.getElementById('n-month').value=''; document.getElementById('total-preview').innerHTML='中清總計：<strong>$0</strong>｜各人分攤：<strong>$0</strong>'; loadAll(); switchTab('list'); } else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function updateMonth(){
+  const r=RECORDS.find(x=>x.月份===SEL); if(!r) return;
+  const data={月份:SEL,年份:r.年份||'',
+    店租:parseFloat(document.getElementById('e-rent').value)||0,
+    娛樂稅:parseFloat(document.getElementById('e-ent').value)||0,
+    營業稅:parseFloat(document.getElementById('e-biz').value)||0,
+    電費:parseFloat(document.getElementById('e-elec').value)||0,
+    其他:parseFloat(document.getElementById('e-other').value)||0,
+    伯父租金:parseFloat(document.getElementById('e-uncle').value)||0,
+    聖承租金:parseFloat(document.getElementById('e-sc').value)||0,
+  };
+  showLoad(true);
+  callGAS('saveRentData',{data:JSON.stringify(data)})
+    .then(res=>{ showLoad(false); if(res.success){toast('已更新','ok');reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+
+// ── DEDUCTIONS ──
+function toggleCustom(p){ document.getElementById('dc-'+p).style.display=document.getElementById('di-'+p).value==='__c__'?'':'none'; }
+function addDeduct(person){
+  const sel=document.getElementById('di-'+person).value;
+  const item=sel==='__c__'?document.getElementById('dcv-'+person).value.trim():sel;
+  if(!item){ toast('請填寫項目名稱',1); return; }
+  const amtRaw=parseFloat(document.getElementById('da-'+person).value);
+  if(!amtRaw||amtRaw<=0){ toast('請填寫正數金額',1); return; }
+  const note=document.getElementById('dn-'+person).value.trim();
+  showLoad(true);
+  callGAS('addDeduction',{monthStr:SEL,person,item,amount:-Math.abs(amtRaw),note})
+    .then(res=>{ showLoad(false); if(res.success){toast('已新增扣抵','ok');document.getElementById('da-'+person).value='';document.getElementById('dn-'+person).value='';document.getElementById('di-'+person).selectedIndex=0;document.getElementById('dc-'+person).style.display='none';reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function delDeduct(btn){
+  const person=btn.dataset.person, idx=parseInt(btn.dataset.idx);
+  if(!confirm('確定要刪除此扣抵項目？')) return;
+  showLoad(true);
+  callGAS('removeDeduction',{monthStr:SEL,person,index:idx})
+    .then(res=>{ showLoad(false); if(res.success){toast('已刪除','ok');reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function addExtraByOwner(){
+  const person=document.getElementById('extra-target').value;
+  const item=document.getElementById('extra-item').value.trim();
+  if(!item){ toast('請填寫項目名稱',1); return; }
+  const amt=parseFloat(document.getElementById('extra-amt').value);
+  if(!amt||amt<=0){ toast('請填寫正數金額',1); return; }
+  const note=document.getElementById('extra-note').value.trim();
+  showLoad(true);
+  callGAS('addExtra',{monthStr:SEL,person,item,amount:amt,note})
+    .then(res=>{ showLoad(false); if(res.success){toast('已新增額外費用','ok');document.getElementById('extra-item').value='';document.getElementById('extra-amt').value='';document.getElementById('extra-note').value='';reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function delExtra(btn){
+  const person=btn.dataset.person, idx=parseInt(btn.dataset.eidx);
+  if(!confirm('確定要刪除此額外費用？')) return;
+  showLoad(true);
+  callGAS('removeExtra',{monthStr:SEL,person,index:idx})
+    .then(res=>{ showLoad(false); if(res.success){toast('已刪除','ok');reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function doConfirm(person){
+  if(!confirm(`確定確認 ${SEL} 的應付金額？`)) return;
+  showLoad(true);
+  callGAS('confirmAmount',{monthStr:SEL,person})
+    .then(res=>{ showLoad(false); if(res.success){toast('已確認！','ok');reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function doResetConfirm(person){
+  if(!confirm(`確定解除${person}的確認？`)) return;
+  showLoad(true);
+  callGAS('resetConfirm',{monthStr:SEL,person})
+    .then(res=>{ showLoad(false); if(res.success){toast(`已解除${person}確認`,'ok');reloadDetail();}else toast(res.error,1); })
+    .catch(()=>{ showLoad(false); toast('連線失敗',1); });
+}
+function reloadDetail(){
+  const m=SEL;
+  callGAS('getAllRecords').then(res=>{ if(res.success){RECORDS=res.data; selectRecord(m);} });
+}
+
+// ── UTILS ──
+function fmt(n){ return Number(n||0).toLocaleString(); }
+function showLoad(v){ document.getElementById('loading').classList.toggle('show',v); }
+let _tt;
+function toast(msg,type){ const el=document.getElementById('toast'); el.textContent=msg; el.className='show'+(type==='ok'?' ok':type==='1'||type===1?' err':''); clearTimeout(_tt); _tt=setTimeout(()=>el.className='',3200); }
+</script>
+
+
+</body></html>
